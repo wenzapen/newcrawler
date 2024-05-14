@@ -9,6 +9,6 @@ type Profile struct {
 	Height           int
 	Education        string
 	Salary           string
-	introduceContent string
+	IntroduceContent string
 	LinkURL          string
 }
