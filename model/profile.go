@@ -1,14 +1,14 @@
 package model
 
 type Profile struct {
-	Age                   int
-	avatarURL             string
-	briefIntroduceContent string
-	Height                int
-	introduceContent      string
-	LinkURL               string
-	MemberId              int
-	Nickname              string
-	Salary                int
-	Sex                   int
+	Nickname         string
+	Gender           string
+	Age              int
+	Marriage         string
+	Localtion        string
+	Height           int
+	Education        string
+	Salary           string
+	introduceContent string
+	LinkURL          string
 }
