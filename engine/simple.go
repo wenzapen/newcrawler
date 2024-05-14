@@ -5,27 +5,28 @@ import (
 	"newcrawler/fetcher"
 )
 
-func Run(seeds ...Request) {
+type SimpleEngine struct {
+}
+
+func (s *SimpleEngine) Run(seeds ...Request) {
 	var requests []Request
-	for _, r := range seeds {
-		requests = append(requests, r)
-	}
+
+	requests = append(requests, seeds...)
 
 	limit := 0
 	for len(requests) > 0 {
-		if limit > 10 {
+		if limit > 10000 {
 			return
 		}
 		r := requests[0]
 		requests = requests[1:]
 
-		log.Printf("Fetching %s", r.Url)
-		body, err := fetcher.Fetch(r.Url)
+		parseResult, err := worker(r)
 		if err != nil {
 			log.Printf("Fetcher:error "+"fetching url %s :%v", r.Url, err)
 			continue
 		}
-		parseResult := r.ParseFunc(body)
+
 		requests = append(requests, parseResult.Requests...)
 
 		for _, item := range parseResult.Items {
@@ -33,4 +34,13 @@ func Run(seeds ...Request) {
 		}
 		limit++
 	}
+}
+
+func worker(r Request) (ParseResult, error) {
+	log.Printf("Fetching %s", r.Url)
+	body, err := fetcher.Fetch(r.Url)
+	if err != nil {
+		return ParseResult{}, err
+	}
+	return r.ParseFunc(body), nil
 }
