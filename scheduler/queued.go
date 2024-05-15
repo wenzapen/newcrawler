@@ -1,5 +1,10 @@
 package scheduler
 
+import (
+	"log"
+	"newcrawler/engine"
+)
+
 type QueuedScheduler struct {
 	requestChan chan engine.Request
 	workerChan  chan chan engine.Request
@@ -13,9 +18,15 @@ func (s *QueuedScheduler) WorkerReady(w chan engine.Request) {
 	s.workerChan <- w
 }
 
+func (s *QueuedScheduler) ConfigureRequestChan(c chan engine.Request) {
+	s.requestChan = c
+}
+
 func (s *QueuedScheduler) Run() {
+	log.Println("queued scheduler is running")
+	s.workerChan = make(chan chan engine.Request)
 	requestQ := []engine.Request{}
-	workerQ := []chan chan engine.Request{}
+	workerQ := []chan engine.Request{}
 	for {
 		var activeRequest engine.Request
 		var activeWorker chan engine.Request
@@ -25,6 +36,12 @@ func (s *QueuedScheduler) Run() {
 		}
 		select {
 		case r := <-s.requestChan:
+			requestQ = append(requestQ, r)
+		case w := <-s.workerChan:
+			workerQ = append(workerQ, w)
+		case activeWorker <- activeRequest:
+			requestQ = requestQ[1:]
+			workerQ = workerQ[1:]
 
 		}
 	}
