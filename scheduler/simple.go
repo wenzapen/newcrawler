@@ -3,13 +3,19 @@ package scheduler
 import "newcrawler/engine"
 
 type SimpleScheduler struct {
-	requestChan chan engine.Request
+	workerChan chan engine.Request
 }
 
 func (s *SimpleScheduler) Submit(r engine.Request) {
-	go func() { s.requestChan <- r }()
+	go func() { s.workerChan <- r }()
 }
 
-func (s *SimpleScheduler) ConfigureRequestChan(c chan engine.Request) {
-	s.requestChan = c
+func (s *SimpleScheduler) WorkerChan() chan engine.Request {
+	return s.workerChan
+}
+
+func (s *SimpleScheduler) WorkerReady(w chan engine.Request) {}
+
+func (s *SimpleScheduler) Run() {
+	s.workerChan = make(chan engine.Request)
 }
